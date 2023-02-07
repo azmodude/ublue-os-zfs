@@ -32,11 +32,8 @@ RUN mkdir -p /zfs-current && \
   mv libzfs5-$(cat /zfs-version.txt)-[0-9].fc${FEDORA_MAJOR_VERSION}.$(uname -p).rpm /zfs-current && \
   mv libzpool5-$(cat /zfs-version.txt)-[0-9].fc${FEDORA_MAJOR_VERSION}.$(uname -p).rpm /zfs-current
 
-
 FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION}
 COPY --from=builder /zfs-current/*.rpm /zfs/
-# For the example we install all RPMS (debug, test, etc).
-# In real use cases probably just want the module rpm.
 RUN rpm-ostree install /zfs/*.rpm && \
   # we don't want any files on /var
   rm -rf /var/lib/pcp && \
