@@ -23,7 +23,7 @@ RUN curl -L -O https://github.com/openzfs/zfs/releases/download/zfs-$(cat /zfs-v
   tar xzf zfs-$(cat /zfs-version.txt).tar.gz && mv zfs-$(cat /zfs-version.txt) zfs
 WORKDIR /zfs
 RUN bash -c "./configure -with-linux=/usr/src/kernels/$(cat /kernel-version.txt)/ -with-linux-obj=/usr/src/kernels/$(cat /kernel-version.txt)/" && \
-  make -j1 rpm-utils rpm-kmod
+  make -j$(nproc) rpm-utils rpm-kmod
 RUN mkdir -p /zfs-current && \
   mv zfs-$(cat /zfs-version.txt)-[0-9].fc${FEDORA_MAJOR_VERSION}.$(uname -p).rpm /zfs-current && \
   mv kmod-zfs-$(cat /kernel-version.txt)-$(cat /zfs-version.txt)-[0-9].fc${FEDORA_MAJOR_VERSION}.$(uname -p).rpm /zfs-current && \
@@ -37,5 +37,4 @@ COPY --from=builder /zfs-current/*.rpm /zfs/
 RUN rpm-ostree install /zfs/*.rpm && \
   # we don't want any files on /var
   rm -rf /var/lib/pcp && \
-  rm -rf /zfs && \
   ostree container commit
